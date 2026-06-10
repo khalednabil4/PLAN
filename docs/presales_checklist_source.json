@@ -1,0 +1,88 @@
+{
+  "document": {
+    "company": "alnafitha IT",
+    "department": "Presales",
+    "title": "Presales Checklist Sample",
+    "subtitle": "Checklist items and corrected solutions",
+    "version": "1.7",
+    "last_updated": "2026-06-10"
+  },
+  "brand": {
+    "primary": "#2F33D1",
+    "secondary": "#19B8F3",
+    "accent": "#5BE4FF",
+    "text_dark": "#13203A",
+    "text_light": "#FFFFFF",
+    "muted_fill": "#EEF3FF"
+  },
+  "pages": [
+    {
+      "id": "presales-checklist",
+      "name": "Presales Checklist",
+      "intro": "Checklist items with corrected professional wording.",
+      "checklists": [
+        {
+          "id": "01 / 02",
+          "title": "Presales Engagement Model on Deals and Presales Activities Tracking and Time Log",
+          "description": "Presales engagement on deals covers active and reactive modes, and Presales activities must be tracked through time logging.",
+          "solution_title": "Solution",
+          "solution_bullets": [
+            "Create a settings page in Zoho CRM as a custom widget.",
+            "Presales users will not have the option to edit records directly; updates will be made only through Blueprint.",
+            "A time value will be added when each Blueprint action is clicked, and this time will be determined on the settings page."
+          ]
+        },
+        {
+          "id": "03",
+          "title": "Presales Activities Tracking and Time Log, Presales Technical Proposal Preparation, Task List, and Estimated Efforts",
+          "description": "Project sizes versus project management require a checklist for each case. Professional services pricing should include fixed and flexible options.",
+          "solution_title": "Solution",
+          "solution_bullets": [
+            "Create a dynamic settings page for each department.",
+            "The page will be managed by the roles of Project Manager and Presales Manager.",
+            "The settings will be defined according to the market need and the company need during that period.",
+            "The page will include project budget limits.",
+            "All services will be displayed on the page.",
+            "The team will be able to reduce the profit margin or define that the company wants more projects.",
+            "The page should be as dynamic as possible so they can define their priorities for the coming period.",
+            "This review will take place in a monthly meeting.",
+            "If the settings are not updated, an escalation will be raised."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "enhance-crm",
+      "name": "Enhance CRM",
+      "intro": "CRM enhancement items for reporting, visibility, and resource planning.",
+      "checklists": [
+        {
+          "id": "04",
+          "title": "Rotation Module for Deals and Leads",
+          "description": "A rotation module will be built to identify who is working on each deal or lead for reporting purposes.",
+          "solution_title": "Solution",
+          "solution_bullets": [
+            "Build a rotation module.",
+            "The module will show who is working on each deal or lead.",
+            "The module will be used for reporting."
+          ]
+        },
+        {
+          "id": "05",
+          "title": "Department Dashboard Widget",
+          "description": "A dashboard widget will be built for each department, and it will show the technical resource capacity for the team.",
+          "solution_title": "Solution",
+          "solution_bullets": [
+            "Build a dashboard widget for each department.",
+            "Only the Super Admin can view all departments.",
+            "The widget will explain how many projects each team member is handling.",
+            "The widget will show the total available hours for each technical resource.",
+            "The widget is focused on technical resources, not only on projects.",
+            "The data will be taken from Zoho People and Zoho Projects.",
+            "Each manager will be able to see the available technical resources and determine the project need."
+          ]
+        }
+      ]
+    }
+  ]
+}

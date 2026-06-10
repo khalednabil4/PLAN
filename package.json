@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:presales-doc": "python scripts/build_presales_doc.py build",
+    "extract:presales-doc": "python scripts/build_presales_doc.py extract",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
