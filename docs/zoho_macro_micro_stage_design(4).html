@@ -596,7 +596,7 @@
   <script>
     const workflowData = {
       stats: [
-        { label: "Macro Stages", value: "6" },
+        { label: "Macro Stages", value: "7" },
         { label: "Views", value: "Offer + Technical" },
         { label: "Main Control", value: "Blueprint Gates" },
         { label: "Core Output", value: "Proposal + Quote" }
@@ -679,27 +679,41 @@
           output: ["Approved professional services costing", "Proposal-ready services table", "Reliable pricing base"]
         },
         {
-          id: "quote-inventory",
+          id: "create-proposal",
           no: 5,
-          title: "Create Quotes + Inventory Control",
-          offerTitle: "Create Quote and Control Products",
-          summary: "Generate quotes from CRM and handle inventory/product errors through a controlled update process.",
-          offerSummary: "Quotes are generated from approved Deal, requirement, and service data. Product or inventory errors follow a controlled correction workflow.",
-          module: "Zoho CRM Quotes + Products + Inventory Error Process",
+          title: "Create Proposal",
+          offerTitle: "Create Proposal",
+          summary: "",
+          offerSummary: "",
+          module: "",
+          color: "primary",
+          tags: [],
+          micro: [],
+          automation: [],
+          gate: [],
+          output: []
+        },
+        {
+          id: "quote-inventory",
+          no: 6,
+          title: "Create Quotes with CPQ",
+          offerTitle: "Create Quote with CPQ",
+          summary: "Create quotes in CRM using CPQ, then sync approved quote data with Zoho Books.",
+          offerSummary: "Quotes are created in CRM through CPQ and synchronized with Zoho Books for finance and invoicing alignment.",
+          module: "Zoho CRM CPQ + Zoho Books",
           color: "warning",
-          tags: ["Quote", "Product Fix"],
+          tags: ["Quote", "CPQ", "Zoho Books"],
           micro: [
-            { title: "Create Quote", type: "output", text: "Quote is created from Deal data, approved service sheet, selected products, taxes, and commercial terms." },
-            { title: "Inventory Error Check", type: "auto", text: "If product, SKU, tax, stock, or price is wrong, create an inventory correction request." },
-            { title: "Product Update Process", type: "gate", text: "Inventory/product owner must update the product before quote can be sent." }
+            { title: "Create Quote with CPQ", type: "output", text: "Create the quote inside CRM using CPQ based on approved requirement and service data." },
+            { title: "Zoho Books Sync", type: "auto", text: "Sync the approved quote with Zoho Books for finance processing." }
           ],
-          automation: ["Auto-populate quote line items from service sheet and products.", "Create correction request when product validation fails.", "Notify inventory/product owner.", "Recalculate quote after product correction."],
-          gate: ["Quote cannot be sent if inventory error is Open.", "Quote approval required before client submission.", "Expired pricing requires refresh."],
-          output: ["Approved quote", "Controlled inventory correction", "Clean commercial document"]
+          automation: ["Create quote records from CRM CPQ.", "Sync approved quote data with Zoho Books."],
+          gate: ["CPQ quote must be completed before Zoho Books sync.", "Quote approval required before client submission."],
+          output: ["Approved CPQ quote", "Synced Zoho Books commercial data"]
         },
         {
           id: "pmo-control",
-          no: 6,
+          no: 7,
           title: "PMO Request Control",
           offerTitle: "PMO Request and Journey Control",
           summary: "Create a custom PMO module to control delivery requests, email logging, activity tracking, and journey stages connected to the Deal.",
@@ -723,6 +737,7 @@
           stageId: "collect-requirements",
           title: "Collect Requirements",
           way: [
+            "Use the BANT sales stage.",
             "Collect requirements.",
             "Specific fields must be entered."
           ],
@@ -763,13 +778,19 @@
           ]
         },
         {
+          stageId: "create-proposal",
+          title: "Create Proposal",
+          way: [],
+          technology: []
+        },
+        {
           stageId: "quote-inventory",
-          title: "Create Quotes + Inventory Control",
+          title: "Create Quotes with CPQ",
           way: [
-            "Create quotes using the same controlled process."
+            "Create the quote in CRM using CPQ."
           ],
           technology: [
-            "If an inventory error is found, create a correction process and update the product."
+            "Sync the approved quote with Zoho Books."
           ]
         },
         {
@@ -854,8 +875,8 @@
           <article class="stage-card ${stage.id === selectedStageId ? "active" : ""}" onclick="selectStage('${stage.id}')">
             <span class="badge" style="background:${colorMap[stage.color]};">${stage.no}</span>
             <h3>${title}</h3>
-            <p>${summary}</p>
-            <div class="stage-meta">${chips}</div>
+            ${summary ? `<p>${summary}</p>` : ""}
+            ${chips ? `<div class="stage-meta">${chips}</div>` : ""}
           </article>
         `;
       }).join("");
@@ -890,18 +911,20 @@
           </div>
         ` : "";
         const technologyTag = item.technology && item.technology.length ? `<span class="prompt-tag">Details</span>` : "";
+        const microBox = item.way && item.way.length ? `
+          <span class="prompt-tag">Micro</span>
+          <div class="soft-box">
+            <strong>Micro</strong>
+            <ul>${renderListItems(item.way)}</ul>
+          </div>
+        ` : "";
         return `
           <article class="macro-design-card">
             <h3>${item.title}</h3>
-            <p>${item.way[0] || ""}</p>
             ${technologyTag}
-            <span class="prompt-tag">Micro</span>
             <div class="split-list three">
               ${technologyBox}
-              <div class="soft-box">
-                <strong>Micro</strong>
-                <ul>${renderListItems(item.way)}</ul>
-              </div>
+              ${microBox}
             </div>
           </article>
         `;

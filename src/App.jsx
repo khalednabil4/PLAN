@@ -10,7 +10,7 @@ const versions = [
 
 const workflowData = {
   stats: [
-    { label: 'Macro Stages', value: '6' },
+    { label: 'Macro Stages', value: '7' },
     { label: 'Views', value: 'Offer + Technical' },
     { label: 'Main Control', value: 'Blueprint Gates' },
     { label: 'Core Output', value: 'Proposal + Quote' },
@@ -202,54 +202,60 @@ const workflowData = {
       ],
     },
     {
-      id: 'quote-inventory',
+      id: 'create-proposal',
       no: 5,
-      title: 'Create Quotes + Inventory Control',
-      offerTitle: 'Create Quote and Control Products',
+      title: 'Create Proposal',
+      offerTitle: 'Create Proposal',
+      summary: '',
+      offerSummary: '',
+      module: '',
+      color: 'primary',
+      tags: [],
+      micro: [],
+      automation: [],
+      gate: [],
+      output: [],
+    },
+    {
+      id: 'quote-inventory',
+      no: 6,
+      title: 'Create Quotes with CPQ',
+      offerTitle: 'Create Quote with CPQ',
       summary:
-        'Generate quotes from CRM and handle inventory/product errors through a controlled update process.',
+        'Create quotes in CRM using CPQ, then sync approved quote data with Zoho Books.',
       offerSummary:
-        'Quotes are generated from approved Deal, requirement, and service data. Product or inventory errors follow a controlled correction workflow.',
-      module: 'Zoho CRM Quotes + Products + Inventory Error Process',
+        'Quotes are created in CRM through CPQ and synchronized with Zoho Books for finance and invoicing alignment.',
+      module: 'Zoho CRM CPQ + Zoho Books',
       color: 'warning',
-      tags: ['Quote', 'Product Fix'],
+      tags: ['Quote', 'CPQ', 'Zoho Books'],
       micro: [
         {
-          title: 'Create Quote',
+          title: 'Create Quote with CPQ',
           type: 'output',
-          text: 'Quote is created from Deal data, approved service sheet, selected products, taxes, and commercial terms.',
+          text: 'Create the quote inside CRM using CPQ based on approved requirement and service data.',
         },
         {
-          title: 'Inventory Error Check',
+          title: 'Zoho Books Sync',
           type: 'auto',
-          text: 'If product, SKU, tax, stock, or price is wrong, create an inventory correction request.',
-        },
-        {
-          title: 'Product Update Process',
-          type: 'gate',
-          text: 'Inventory/product owner must update the product before quote can be sent.',
+          text: 'Sync the approved quote with Zoho Books for finance processing.',
         },
       ],
       automation: [
-        'Auto-populate quote line items from service sheet and products.',
-        'Create correction request when product validation fails.',
-        'Notify inventory/product owner.',
-        'Recalculate quote after product correction.',
+        'Create quote records from CRM CPQ.',
+        'Sync approved quote data with Zoho Books.',
       ],
       gate: [
-        'Quote cannot be sent if inventory error is Open.',
+        'CPQ quote must be completed before Zoho Books sync.',
         'Quote approval required before client submission.',
-        'Expired pricing requires refresh.',
       ],
       output: [
-        'Approved quote',
-        'Controlled inventory correction',
-        'Clean commercial document',
+        'Approved CPQ quote',
+        'Synced Zoho Books commercial data',
       ],
     },
     {
       id: 'pmo-control',
-      no: 6,
+      no: 7,
       title: 'PMO Request Control',
       offerTitle: 'PMO Request and Journey Control',
       summary:
@@ -298,7 +304,11 @@ const workflowData = {
     {
       stageId: 'collect-requirements',
       title: 'Collect Requirements',
-      way: ['Collect requirements.', 'Specific fields must be entered.'],
+      way: [
+        'Use the BANT sales stage.',
+        'Collect requirements.',
+        'Specific fields must be entered.',
+      ],
       technology: [],
     },
     {
@@ -332,12 +342,16 @@ const workflowData = {
       technology: ['Create a custom module to calculate this and connect it with the Deal.'],
     },
     {
+      stageId: 'create-proposal',
+      title: 'Create Proposal',
+      way: [],
+      technology: [],
+    },
+    {
       stageId: 'quote-inventory',
-      title: 'Create Quotes + Inventory Control',
-      way: ['Create quotes using the same controlled process.'],
-      technology: [
-        'If an inventory error is found, create a correction process and update the product.',
-      ],
+      title: 'Create Quotes with CPQ',
+      way: ['Create the quote in CRM using CPQ.'],
+      technology: ['Sync the approved quote with Zoho Books.'],
     },
     {
       stageId: 'pmo-control',
@@ -572,27 +586,33 @@ function MacroMicroView() {
 
         <div className="pipeline-wrap">
           <div className="pipeline">
-            {workflowData.stages.map((stage) => (
-              <button
-                key={stage.id}
-                className={`stage-card stage-card-${stage.color} ${
-                  stage.id === selectedStageId ? 'stage-card-active' : ''
-                }`}
-                type="button"
-                onClick={() => setSelectedStageId(stage.id)}
-              >
-                <span className={`stage-badge stage-badge-${stage.color}`}>{stage.no}</span>
-                <strong>{viewMode === 'offer' ? stage.offerTitle : stage.title}</strong>
-                <span>{viewMode === 'offer' ? stage.offerSummary : stage.summary}</span>
-                <span className="stage-tags">
-                  {stage.tags.map((tag) => (
-                    <span className="chip" key={tag}>
-                      {tag}
+            {workflowData.stages.map((stage) => {
+              const stageSummary = viewMode === 'offer' ? stage.offerSummary : stage.summary
+
+              return (
+                <button
+                  key={stage.id}
+                  className={`stage-card stage-card-${stage.color} ${
+                    stage.id === selectedStageId ? 'stage-card-active' : ''
+                  }`}
+                  type="button"
+                  onClick={() => setSelectedStageId(stage.id)}
+                >
+                  <span className={`stage-badge stage-badge-${stage.color}`}>{stage.no}</span>
+                  <strong>{viewMode === 'offer' ? stage.offerTitle : stage.title}</strong>
+                  {stageSummary ? <span>{stageSummary}</span> : null}
+                  {stage.tags.length ? (
+                    <span className="stage-tags">
+                      {stage.tags.map((tag) => (
+                        <span className="chip" key={tag}>
+                          {tag}
+                        </span>
+                      ))}
                     </span>
-                  ))}
-                </span>
-              </button>
-            ))}
+                  ) : null}
+                </button>
+              )
+            })}
           </div>
         </div>
       </section>
@@ -615,7 +635,7 @@ function MacroMicroView() {
               key={item.stageId}
             >
               <h3>{item.title}</h3>
-              <InfoGroup title="Micro" items={item.way} />
+              {item.way.length ? <InfoGroup title="Micro" items={item.way} /> : null}
               {item.technology.length ? <InfoGroup title="Details" items={item.technology} /> : null}
             </article>
           ))}
