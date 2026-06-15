@@ -8,13 +8,6 @@ const versions = [
   { id: 'v2', label: 'V2', name: 'Zoho Macro/Micro' },
 ]
 
-const detailTabs = [
-  { id: 'macro', label: 'Macro Data' },
-  { id: 'automation', label: 'Automation' },
-  { id: 'gate', label: 'Gates' },
-  { id: 'output', label: 'Output' },
-]
-
 const workflowData = {
   stats: [
     { label: 'Macro Stages', value: '6' },
@@ -524,9 +517,6 @@ function ChecklistView() {
 function MacroMicroView() {
   const [viewMode, setViewMode] = useState('offer')
   const [selectedStageId, setSelectedStageId] = useState(workflowData.stages[0].id)
-  const [selectedTab, setSelectedTab] = useState('macro')
-  const selectedStage =
-    workflowData.stages.find((stage) => stage.id === selectedStageId) ?? workflowData.stages[0]
 
   return (
     <main className="workflow-page">
@@ -607,25 +597,6 @@ function MacroMicroView() {
         </div>
       </section>
 
-      <section className="workflow-main-grid workflow-main-grid-single">
-        <article className="workflow-panel">
-          <div className="detail-tabs" aria-label="Stage detail tabs">
-            {detailTabs.map((tab) => (
-              <button
-                key={tab.id}
-                className={`tab-button ${tab.id === selectedTab ? 'tab-button-active' : ''}`}
-                type="button"
-                onClick={() => setSelectedTab(tab.id)}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          <DetailPanel stage={selectedStage} selectedTab={selectedTab} />
-        </article>
-      </section>
-
       <section className="workflow-panel workflow-panel-wide">
         <div className="workflow-section-heading compact">
           <div>
@@ -669,33 +640,6 @@ function MacroMicroView() {
         </div>
       </section>
     </main>
-  )
-}
-
-function DetailPanel({ stage, selectedTab }) {
-  const macroDesign = workflowData.macroDesign.find((item) => item.stageId === stage.id)
-
-  if (selectedTab === 'macro') {
-    return (
-      <div className="detail-box">
-        {macroDesign ? <InfoGroup title="Micro" items={macroDesign.way} /> : null}
-        {macroDesign?.technology.length ? (
-          <InfoGroup title="Details" items={macroDesign.technology} />
-        ) : null}
-      </div>
-    )
-  }
-
-  const tabContent = {
-    automation: { title: 'Automation Rules', items: stage.automation },
-    gate: { title: 'Blueprint / Control Gates', items: stage.gate },
-    output: { title: 'Business Output', items: stage.output },
-  }[selectedTab]
-
-  return (
-    <div className="detail-box">
-      <InfoGroup title={tabContent.title} items={tabContent.items} />
-    </div>
   )
 }
 

@@ -320,13 +320,6 @@
     .pill.auto { background: #dbeafe; color: #1e40af; }
     .pill.output { background: #dcfce7; color: #166534; }
 
-    .detail-tabs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-
     .tab-btn {
       border: 1px solid var(--line);
       background: #fff;
@@ -546,7 +539,7 @@
 
     @media print {
       body { background: #fff; }
-      .btn, .detail-tabs, .json-box { display: none; }
+      .btn, .json-box { display: none; }
       .app { width: 100%; padding: 0; }
       .hero, .panel, .pipeline-wrap, .stat-card { box-shadow: none; }
       .pipeline { min-width: auto; grid-template-columns: repeat(2, 1fr); }
@@ -808,7 +801,6 @@
 
     let currentView = "offer";
     let selectedStageId = workflowData.stages[0].id;
-    let currentTab = "macro";
 
     const colorMap = {
       primary: "var(--primary)",
@@ -824,7 +816,6 @@
       renderStats();
       renderPipeline();
       renderMacroDesignSection();
-      renderSelectedStage();
       renderProposalGrid();
       bindButtons();
     }
@@ -839,16 +830,6 @@
             ? "Simple executive view with high-level business value."
             : "Internal technical view with stage controls, automation, gates, and outputs.";
           renderPipeline();
-          renderSelectedStage();
-        });
-      });
-
-      document.querySelectorAll("[data-tab]").forEach(btn => {
-        btn.addEventListener("click", () => {
-          currentTab = btn.dataset.tab;
-          document.querySelectorAll("[data-tab]").forEach(b => b.classList.remove("active"));
-          btn.classList.add("active");
-          renderDetailBox(getSelectedStage());
         });
       });
     }
@@ -884,7 +865,6 @@
       selectedStageId = id;
       renderPipeline();
       renderMacroDesignSection();
-      renderSelectedStage();
     }
 
     function getSelectedStage() {
@@ -926,60 +906,6 @@
           </article>
         `;
       }).join("");
-    }
-
-    function renderSelectedStage() {
-      const stage = getSelectedStage();
-      const selectedTitle = document.getElementById("selectedTitle");
-      if (!selectedTitle) return;
-      const title = currentView === "offer" ? stage.offerTitle : stage.title;
-      const summary = currentView === "offer" ? stage.offerSummary : stage.summary;
-      selectedTitle.textContent = title;
-      document.getElementById("selectedSubtitle").textContent = stage.module;
-      document.getElementById("stageSummary").innerHTML = `<p style="color:var(--muted); line-height:1.65; margin:0;">${summary}</p>`;
-      document.getElementById("microList").innerHTML = stage.micro.map(item => `
-        <article class="micro-card">
-          <div class="micro-head">
-            <h4>${item.title}</h4>
-            <span class="pill ${item.type}">${item.type.toUpperCase()}</span>
-          </div>
-          <p>${item.text}</p>
-        </article>
-      `).join("");
-    }
-
-    function renderDetailBox(stage) {
-      const detailBox = document.getElementById("detailBox");
-      if (!detailBox) return;
-      if (currentTab === "macro") {
-        const design = getMacroDesign(stage.id);
-        detailBox.innerHTML = `
-          <h3>Macro Prompt Data: Micro + Details</h3>
-          <p style="color:var(--muted); line-height:1.6; margin-top:0;">This data uses only your original scenario text, with grammar polished and the same meaning preserved.</p>
-          <div class="split-list three">
-            <div class="soft-box">
-              <strong>Details</strong>
-              <ul>${renderListItems(design.technology)}</ul>
-            </div>
-            <div class="soft-box">
-              <strong>Micro</strong>
-              <ul>${renderListItems(design.way)}</ul>
-            </div>
-          </div>
-        `;
-        return;
-      }
-
-      const map = {
-        automation: { title: "Automation Rules", data: stage.automation },
-        gate: { title: "Blueprint / Control Gates", data: stage.gate },
-        output: { title: "Business Output", data: stage.output }
-      };
-      const selected = map[currentTab];
-      detailBox.innerHTML = `
-        <h3>${selected.title}</h3>
-        <ul>${selected.data.map(item => `<li>${item}</li>`).join("")}</ul>
-      `;
     }
 
     function renderProposalGrid() {
