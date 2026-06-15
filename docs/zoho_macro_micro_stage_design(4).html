@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zoho CRM Macro & Micro Stage Design</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #162033;
+      --muted: #6c778c;
+      --line: #dce3f0;
+      --primary: #1d4ed8;
+      --primary-dark: #173d9d;
+      --secondary: #0891b2;
+      --success: #16a34a;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --purple: #7c3aed;
+      --shadow: 0 16px 40px rgba(20, 37, 63, 0.10);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, Segoe UI, Arial, sans-serif;
+      background: linear-gradient(135deg, #eef4ff 0%, #f8fafc 45%, #eefafe 100%);
+      color: var(--text);
+    }
+
+    .app {
+      width: min(1380px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 52px;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      border-radius: 28px;
+      color: #fff;
+      background:
+        radial-gradient(circle at top right, rgba(45, 212, 191, .38), transparent 35%),
+        linear-gradient(135deg, #0f172a 0%, #1e3a8a 52%, #075985 100%);
+      padding: 34px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -70px -80px auto;
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(28px, 5vw, 48px);
+      line-height: 1.08;
+      max-width: 850px;
+    }
+
+    .hero p {
+      margin: 14px 0 0;
+      max-width: 900px;
+      color: rgba(255, 255, 255, .83);
+      font-size: 17px;
+      line-height: 1.65;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 18px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: .2s ease;
+      background: rgba(255, 255, 255, .13);
+      color: #fff;
+      backdrop-filter: blur(8px);
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+    .btn.active { background: #fff; color: #0f172a; }
+
+    .top-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin: 20px 0 22px;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border: 1px solid rgba(226, 232, 240, .8);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: 0 10px 30px rgba(20, 37, 63, 0.06);
+    }
+
+    .stat-card span {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .stat-card strong {
+      display: block;
+      margin-top: 8px;
+      font-size: 25px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 30px 0 14px;
+    }
+
+    .section-title h2 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .view-note {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .pipeline-wrap {
+      background: rgba(255, 255, 255, .72);
+      border: 1px solid rgba(226, 232, 240, .9);
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+      overflow: auto;
+    }
+
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(170px, 1fr));
+      gap: 14px;
+      min-width: 1180px;
+    }
+
+    .stage-card {
+      position: relative;
+      background: var(--card);
+      border: 2px solid transparent;
+      border-radius: 20px;
+      padding: 16px;
+      min-height: 190px;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(20, 37, 63, 0.08);
+      transition: .2s ease;
+    }
+
+    .stage-card::after {
+      content: "→";
+      position: absolute;
+      right: -16px;
+      top: 45%;
+      font-size: 24px;
+      color: #94a3b8;
+      z-index: 5;
+    }
+
+    .stage-card:last-child::after { display: none; }
+    .stage-card:hover { transform: translateY(-3px); }
+    .stage-card.active { border-color: var(--primary); box-shadow: 0 14px 36px rgba(29, 78, 216, .16); }
+
+    .badge {
+      width: 36px;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      color: #fff;
+      font-weight: 900;
+      background: var(--primary);
+      margin-bottom: 12px;
+    }
+
+    .stage-card h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      line-height: 1.3;
+    }
+
+    .stage-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .stage-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 12px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #3730a3;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .chip.green { background: #dcfce7; color: #166534; }
+    .chip.orange { background: #ffedd5; color: #9a3412; }
+    .chip.cyan { background: #cffafe; color: #155e75; }
+    .chip.red { background: #fee2e2; color: #991b1b; }
+    .chip.purple { background: #ede9fe; color: #5b21b6; }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid rgba(226, 232, 240, .9);
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .panel h2, .panel h3 {
+      margin-top: 0;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .panel-title small {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .micro-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .micro-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 15px;
+      background: #fbfdff;
+    }
+
+    .micro-head {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .micro-card h4 {
+      margin: 0;
+      font-size: 15px;
+    }
+
+    .micro-card p {
+      margin: 7px 0 0;
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 14px;
+    }
+
+    .pill {
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 11px;
+      font-weight: 900;
+      background: #e2e8f0;
+      color: #334155;
+      white-space: nowrap;
+    }
+
+    .pill.gate { background: #fee2e2; color: #991b1b; }
+    .pill.auto { background: #dbeafe; color: #1e40af; }
+    .pill.output { background: #dcfce7; color: #166534; }
+
+    .detail-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .tab-btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: #334155;
+      border-radius: 999px;
+      padding: 9px 12px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .tab-btn.active {
+      border-color: var(--primary);
+      color: #fff;
+      background: var(--primary);
+    }
+
+    .detail-box {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 18px;
+      background: #fbfdff;
+      min-height: 380px;
+    }
+
+    .detail-box ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #344154;
+      line-height: 1.65;
+    }
+
+    .detail-box li + li { margin-top: 6px; }
+
+    .table-wrap {
+      overflow: auto;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: #fff;
+      margin-top: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 780px;
+    }
+
+    th, td {
+      padding: 13px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      line-height: 1.45;
+    }
+
+    th {
+      background: #f8fafc;
+      color: #475569;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .proposal-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .proposal-card {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 18px;
+      background: #fff;
+    }
+
+    .proposal-card h3 { margin: 0 0 8px; }
+    .proposal-card p { margin: 0; color: var(--muted); line-height: 1.55; }
+
+
+    .macro-design-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .macro-design-card {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 18px;
+      background: #fff;
+    }
+
+    .macro-design-card h3 {
+      margin: 0 0 6px;
+      font-size: 18px;
+    }
+
+    .macro-design-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .mini-title {
+      margin: 15px 0 8px;
+      font-size: 13px;
+      color: #334155;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      font-weight: 900;
+    }
+
+    .field-table {
+      width: 100%;
+      min-width: 0;
+      border-collapse: collapse;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+      display: table;
+      background: #fff;
+    }
+
+    .field-table th,
+    .field-table td {
+      padding: 9px 10px;
+      font-size: 12px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+
+    .field-table th {
+      background: #f8fafc;
+      color: #475569;
+      font-size: 11px;
+    }
+
+    .field-table tr:last-child td { border-bottom: 0; }
+
+    .split-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .split-list.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .prompt-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: #f1f5f9;
+      color: #334155;
+      font-size: 12px;
+      font-weight: 800;
+      margin: 8px 8px 0 0;
+    }
+
+    .soft-box {
+      border: 1px dashed #cbd5e1;
+      border-radius: 16px;
+      padding: 12px;
+      background: #f8fafc;
+    }
+
+    .soft-box ul {
+      margin: 8px 0 0;
+      padding-left: 17px;
+      color: #344154;
+      line-height: 1.55;
+      font-size: 13px;
+    }
+
+    .json-box {
+      margin-top: 18px;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: #0f172a;
+      color: #e2e8f0;
+    }
+
+    .json-box summary {
+      cursor: pointer;
+      padding: 16px 18px;
+      background: #111827;
+      font-weight: 800;
+    }
+
+    pre {
+      margin: 0;
+      padding: 18px;
+      overflow: auto;
+      font-size: 12px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 1000px) {
+      .top-grid, .proposal-grid, .main-grid, .macro-design-grid, .split-list { grid-template-columns: 1fr; }
+      .hero { padding: 24px; }
+    }
+
+    @media print {
+      body { background: #fff; }
+      .btn, .detail-tabs, .json-box { display: none; }
+      .app { width: 100%; padding: 0; }
+      .hero, .panel, .pipeline-wrap, .stat-card { box-shadow: none; }
+      .pipeline { min-width: auto; grid-template-columns: repeat(2, 1fr); }
+      .stage-card::after { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="hero">
+      <h1>Zoho CRM Macro & Micro Stage Design</h1>
+      <p>
+        A professional stage map for Deal → Requirements → Presales → Professional Services Sheet → Quote → Proposal Engine → PMO Control.
+        The design has two independent views: an Offer View for management/client presentation and a Technical View for internal process control.
+      </p>
+      <div class="hero-actions">
+        <button class="btn active" data-view="offer">Offer View</button>
+        <button class="btn" data-view="technical">Technical View</button>
+        <button class="btn" onclick="window.print()">Print / Save PDF</button>
+      </div>
+    </section>
+
+    <section class="top-grid" id="stats"></section>
+
+    <div class="section-title">
+      <h2 id="pipelineTitle">Macro Stages</h2>
+      <span class="view-note" id="viewNote">Simple executive view with high-level business value.</span>
+    </div>
+
+    <section class="pipeline-wrap">
+      <div class="pipeline" id="pipeline"></div>
+    </section>
+
+    <section class="panel" style="margin-top: 20px;">
+      <div class="section-title" style="margin-top:0;">
+        <h2>Macro Stage User Data Only</h2>
+        <span class="view-note">Way + Technology</span>
+      </div>
+      <p style="color: var(--muted); line-height: 1.6; margin-top: -4px;">
+        This section uses only your original data. Technology appears only where technical notes were provided in the same stage.
+      </p>
+      <div class="macro-design-grid" id="macroDesignGrid"></div>
+    </section>
+
+    <section class="main-grid">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <h2 id="selectedTitle">Stage Details</h2>
+            <small id="selectedSubtitle">Select a stage from the map.</small>
+          </div>
+          <span class="pill output" id="stageType">Macro</span>
+        </div>
+        <div id="stageSummary"></div>
+        <div class="micro-list" id="microList"></div>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top: 20px;">
+      <div class="section-title" style="margin-top:0;">
+        <h2>Proposal Recommendation Approach</h2>
+        <span class="view-note">SmartBrowze / Catalyst / Zia-ready data journey</span>
+      </div>
+      <div class="proposal-grid" id="proposalGrid"></div>
+    </section>
+</main>
+
+  <script>
+    const workflowData = {
+      stats: [
+        { label: "Macro Stages", value: "7" },
+        { label: "Views", value: "Offer + Technical" },
+        { label: "Main Control", value: "Blueprint Gates" },
+        { label: "Core Output", value: "Proposal + Quote" }
+      ],
+      stages: [
+        {
+          id: "open-deal",
+          no: 1,
+          title: "Open Deal",
+          offerTitle: "Open Deal",
+          summary: "Create a clean opportunity record and prepare it for qualification, requirement collection, and presales engagement.",
+          offerSummary: "Every opportunity starts from one controlled Deal record. This avoids scattered information and gives management one place to track progress.",
+          module: "Zoho CRM Deals",
+          color: "primary",
+          tags: ["Deal", "Owner", "Qualification"],
+          micro: [
+            { title: "Create Deal", type: "output", text: "Sales creates a Deal with client, business unit, opportunity source, expected value, and expected close date." },
+            { title: "Assign Sales Owner", type: "auto", text: "The Deal owner becomes accountable for requirement quality and next follow-up." },
+            { title: "Initial Qualification", type: "gate", text: "Deal cannot move forward without minimum qualification data." }
+          ],
+          automation: ["Auto-create internal checklist for new Deal.", "Notify sales manager when a high-value Deal is opened.", "Set initial SLA timer for requirements collection."],
+          gate: ["Mandatory client and opportunity data must be completed.", "Deal must have Sales Owner and next activity.", "No presales request allowed if Deal is incomplete."],
+          output: ["Qualified Deal record", "Initial pipeline visibility", "Clean starting point for presales"]
+        },
+        {
+          id: "collect-requirements",
+          no: 2,
+          title: "Collect Requirements",
+          offerTitle: "Collect Requirements",
+          summary: "Sales enters structured requirement data before requesting presales, proposal, or quote support.",
+          offerSummary: "The sales team captures the client requirement in a structured format so presales can work faster and reduce repeated questions.",
+          module: "Zoho CRM Deals + Requirement Subform",
+          color: "secondary",
+          tags: ["Required Data", "Scope", "Client Need"],
+          micro: [
+            { title: "Requirement Data", type: "gate", text: "Sales must enter solution type, scope, modules, timeline, budget, pain points, integration needs, and decision criteria." },
+            { title: "Requirement Attachment", type: "output", text: "Upload RFP, drawings, scope file, old proposal, or client email." },
+            { title: "Requirement Validation", type: "auto", text: "Blueprint validates that required data is completed before presales engagement." }
+          ],
+          automation: ["When requirements are completed, enable Presales Engagement stage.", "If attachment is missing for RFP Deals, notify Deal owner.", "Send requirement summary to selected presales channel or project task."],
+          gate: ["Cannot move to Presales Engagement without required data.", "Cannot create proposal before requirement validation.", "Missing budget/timeline triggers manager approval."],
+          output: ["Structured client requirement", "Ready-to-use data for proposal generation", "Reduced sales-presales back and forth"]
+        },
+        {
+          id: "presales-engagement",
+          no: 3,
+          title: "Presales Engagement",
+          offerTitle: "Engage Presales Before Sales Process",
+          summary: "Add a protected Deal stage before the normal sales process. Sales cannot continue until presales accepts and reviews the requirement.",
+          offerSummary: "Before sales promises any solution, the request goes to presales. This protects quality, pricing, and delivery feasibility.",
+          module: "Zoho CRM + Zoho Connect / Zoho Projects",
+          color: "purple",
+          tags: ["Presales", "Channel", "Project Task"],
+          micro: [
+            { title: "Option 1: Department Channel", type: "auto", text: "Push requirement to Zoho Connect channel based on presales department, such as CRM, Creator, Books, Projects, or Analytics." },
+            { title: "Option 2: Zoho Project Task", type: "auto", text: "Create Zoho Projects task linked with the Deal and enquiry/request number." },
+            { title: "Presales Acceptance", type: "gate", text: "Presales must accept, reject, or request clarification before the Deal can continue." }
+          ],
+          automation: ["On entering stage, create Connect post or Project task.", "Notify selected presales department.", "Sync presales status back to Deal.", "Create clarification activity if presales asks for more information."],
+          gate: ["Deal is locked until presales status is Accepted.", "Sales cannot move to proposal or quote before engagement is done.", "Rejection requires reason and manager review."],
+          output: ["Presales engaged before commitment", "Clear responsibility", "Technical request traceability"]
+        },
+        {
+          id: "presales-control",
+          no: 4,
+          title: "Presales Activity Control",
+          offerTitle: "Control Presales Activities",
+          summary: "Every presales stage creates Zoho Projects tasks. The Deal cannot move to the next stage until tasks are closed and time logs are entered.",
+          offerSummary: "Management can control presales work, task completion, and employee time logs before the Deal moves forward.",
+          module: "Zoho CRM Blueprint + Zoho Projects Tasks + Time Logs",
+          color: "danger",
+          tags: ["Task Gate", "Time Log", "Blueprint"],
+          micro: [
+            { title: "Auto Task Creation", type: "auto", text: "When user clicks/enters a stage, a task is created in Zoho Projects with owner, due date, checklist, and Deal reference." },
+            { title: "Task Completion Rule", type: "gate", text: "The next Deal transition is blocked until the related Project task is marked Completed." },
+            { title: "Time Log Rule", type: "gate", text: "Presales must add time log in Zoho Projects before closing the task." }
+          ],
+          automation: ["Create task on stage entry.", "Pull task status from Zoho Projects to CRM.", "Pull logged hours to CRM.", "Notify manager if SLA is breached.", "Unlock next Deal transition only after task + time log are valid."],
+          gate: ["Task status must equal Completed.", "Logged hours must be greater than 0.", "Manager approval required if time exceeds expected hours.", "No manual bypass except admin profile."],
+          output: ["Controlled presales execution", "Employee time visibility", "Accurate cost and effort tracking"]
+        },
+        {
+          id: "professional-services",
+          no: 5,
+          title: "Professional Services Sheet",
+          offerTitle: "Calculate Professional Services",
+          summary: "Create a custom CRM module to calculate implementation, customization, integration, training, support, and PMO effort linked to the Deal.",
+          offerSummary: "The professional services sheet calculates project effort and service price before the final quote or proposal is generated.",
+          module: "Custom Module: Professional Services Sheet",
+          color: "success",
+          tags: ["Costing", "Custom Module", "Deal Link"],
+          micro: [
+            { title: "Service Line Items", type: "output", text: "Add service rows such as discovery, implementation, integration, migration, training, documentation, support, and PMO." },
+            { title: "Effort Calculation", type: "auto", text: "Calculate hours, rate, cost, margin, discount, tax, and final selling price." },
+            { title: "Approval", type: "gate", text: "Finance/management approval is required when discount or margin is outside the allowed range." }
+          ],
+          automation: ["Calculate totals when service lines change.", "Sync approved amount to Deal stage and amount values.", "Trigger approval if margin is below threshold.", "Create quote/proposal-ready service table."],
+          gate: ["Professional Services Sheet must be Approved.", "Final amount must be calculated.", "Low margin requires approval before quote creation."],
+          output: ["Approved professional services costing", "Proposal-ready services table", "Reliable pricing base"]
+        },
+        {
+          id: "quote-inventory",
+          no: 6,
+          title: "Create Quotes + Inventory Control",
+          offerTitle: "Create Quote and Control Products",
+          summary: "Generate quotes from CRM and handle inventory/product errors through a controlled update process.",
+          offerSummary: "Quotes are generated from approved Deal, requirement, and service data. Product or inventory errors follow a controlled correction workflow.",
+          module: "Zoho CRM Quotes + Products + Inventory Error Process",
+          color: "warning",
+          tags: ["Quote", "Inventory", "Product Fix"],
+          micro: [
+            { title: "Create Quote", type: "output", text: "Quote is created from Deal data, approved service sheet, selected products, taxes, and commercial terms." },
+            { title: "Inventory Error Check", type: "auto", text: "If product, SKU, tax, stock, or price is wrong, create an inventory correction request." },
+            { title: "Product Update Process", type: "gate", text: "Inventory/product owner must update the product before quote can be sent." }
+          ],
+          automation: ["Auto-populate quote line items from service sheet and products.", "Create correction request when product validation fails.", "Notify inventory/product owner.", "Recalculate quote after product correction."],
+          gate: ["Quote cannot be sent if inventory error is Open.", "Quote approval required before client submission.", "Expired pricing requires refresh."],
+          output: ["Approved quote", "Controlled inventory correction", "Clean commercial document"]
+        },
+        {
+          id: "pmo-control",
+          no: 7,
+          title: "PMO Request Control",
+          offerTitle: "PMO Request and Journey Control",
+          summary: "Create a custom PMO module to control delivery requests, email logging, activity tracking, and journey stages connected to the Deal.",
+          offerSummary: "After proposal and quote movement, PMO controls requests, internal communication, and delivery journey from one module linked to the Deal.",
+          module: "Custom Module: PMO Requests",
+          color: "cyan",
+          tags: ["PMO", "Email Log", "Journey"],
+          micro: [
+            { title: "Create PMO Request", type: "output", text: "PMO request is created and linked with Deal, Account, Quote, Proposal, and Project." },
+            { title: "Email Activity Logging", type: "auto", text: "Any related email is logged as an activity inside the PMO module and connected back to the Deal." },
+            { title: "Custom Journey", type: "gate", text: "PMO journey has its own stages, approvals, SLA, and task rules." }
+          ],
+          automation: ["Create PMO request from Deal transition.", "Log related emails to PMO activities.", "Sync PMO stage back to Deal.", "Create project milestones after handover."],
+          gate: ["PMO request must have owner and request type.", "Critical requests require approval.", "Handover cannot close until PMO checklist is completed."],
+          output: ["Controlled request journey", "Email and activity traceability", "Clean handover to delivery"]
+        }
+      ],
+
+      macroDesign: [
+        {
+          stageId: "open-deal",
+          title: "Open Deal",
+          way: [
+            "Open the Deal."
+          ],
+          technology: []
+        },
+        {
+          stageId: "collect-requirements",
+          title: "Collect Requirements",
+          way: [
+            "Collect requirements.",
+            "Specific fields must be entered."
+          ],
+          technology: []
+        },
+        {
+          stageId: "presales-engagement",
+          title: "Presales Engagement",
+          way: [
+            "Add a specific stage before the sales process. The Deal cannot continue before presales engagement."
+          ],
+          technology: [
+            "Option 1: Create a channel for each presales department and push the requirement to the correct channel.",
+            "Option 2: Create a Zoho Projects task linked to the enquiry.",
+            "Use either Zoho Connect for the enquiry or Zoho Projects when sales confirms the request."
+          ]
+        },
+        {
+          stageId: "presales-control",
+          title: "Presales Activity Control",
+          way: [
+            "Control presales activity by creating a Zoho Projects task when any stage is clicked or entered."
+          ],
+          technology: [
+            "Use Blueprint control so each stage creates or controls tasks in Zoho Projects.",
+            "The Deal cannot move to the next stage until the task is closed and the time log is entered in Zoho Projects."
+          ]
+        },
+        {
+          stageId: "professional-services",
+          title: "Professional Services Sheet",
+          way: [
+            "Create a full Professional Services calculation sheet.",
+            "Add a related stage in the Deal."
+          ],
+          technology: [
+            "Create a custom module to calculate this and connect it with the Deal."
+          ]
+        },
+        {
+          stageId: "quote-inventory",
+          title: "Create Quotes + Inventory Control",
+          way: [
+            "Create quotes using the same controlled process."
+          ],
+          technology: [
+            "If an inventory error is found, create a correction process and update the product."
+          ]
+        },
+        {
+          stageId: "pmo-control",
+          title: "PMO Request Control",
+          way: [
+            "Create a custom PMO module to control requests.",
+            "Log any related email as an activity inside the module and connect it with the Deal.",
+            "Create a custom journey and stages."
+          ],
+          technology: []
+        }
+      ],
+      proposalApproach: [
+        {
+          title: "1. Study Proposal Data",
+          text: "Convert requirement, service costing, quote, and technical notes into structured tables so SmartBrowZ / Catalyst can generate documents faster."
+        },
+        {
+          title: "2. Build CRM Knowledge Base",
+          text: "Use custom CRM modules to save every reusable section: problem, solution, scope, exclusions, assumptions, timeline, service table, and pricing."
+        },
+        {
+          title: "3. Generate with SmartBrowZ + Zia",
+          text: "Use Zia Agent AI to select the right library sections, then send JSON to Catalyst/SmartBrowZ to create the final proposal template."
+        }
+      ]
+    };
+
+    let currentView = "offer";
+    let selectedStageId = workflowData.stages[0].id;
+    let currentTab = "macro";
+
+    const colorMap = {
+      primary: "var(--primary)",
+      secondary: "var(--secondary)",
+      success: "var(--success)",
+      warning: "var(--warning)",
+      danger: "var(--danger)",
+      purple: "var(--purple)",
+      cyan: "var(--secondary)"
+    };
+
+    function init() {
+      renderStats();
+      renderPipeline();
+      renderMacroDesignSection();
+      renderSelectedStage();
+      renderProposalGrid();
+      bindButtons();
+    }
+
+    function bindButtons() {
+      document.querySelectorAll("[data-view]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          currentView = btn.dataset.view;
+          document.querySelectorAll("[data-view]").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          document.getElementById("viewNote").textContent = currentView === "offer"
+            ? "Simple executive view with high-level business value."
+            : "Internal technical view with stage controls, automation, gates, and outputs.";
+          renderPipeline();
+          renderSelectedStage();
+        });
+      });
+
+      document.querySelectorAll("[data-tab]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          currentTab = btn.dataset.tab;
+          document.querySelectorAll("[data-tab]").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          renderDetailBox(getSelectedStage());
+        });
+      });
+    }
+
+    function renderStats() {
+      const stats = document.getElementById("stats");
+      stats.innerHTML = workflowData.stats.map(item => `
+        <div class="stat-card">
+          <span>${item.label}</span>
+          <strong>${item.value}</strong>
+        </div>
+      `).join("");
+    }
+
+    function renderPipeline() {
+      const pipeline = document.getElementById("pipeline");
+      pipeline.innerHTML = workflowData.stages.map(stage => {
+        const title = currentView === "offer" ? stage.offerTitle : stage.title;
+        const summary = currentView === "offer" ? stage.offerSummary : stage.summary;
+        const chips = stage.tags.map((tag, i) => `<span class="chip ${["", "green", "orange", "purple", "cyan"][i % 5]}">${tag}</span>`).join("");
+        return `
+          <article class="stage-card ${stage.id === selectedStageId ? "active" : ""}" onclick="selectStage('${stage.id}')">
+            <span class="badge" style="background:${colorMap[stage.color]};">${stage.no}</span>
+            <h3>${title}</h3>
+            <p>${summary}</p>
+            <div class="stage-meta">${chips}</div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function selectStage(id) {
+      selectedStageId = id;
+      renderPipeline();
+      renderMacroDesignSection();
+      renderSelectedStage();
+    }
+
+    function getSelectedStage() {
+      return workflowData.stages.find(stage => stage.id === selectedStageId);
+    }
+
+
+    function getMacroDesign(stageId) {
+      return workflowData.macroDesign.find(item => item.stageId === stageId);
+    }
+    function renderListItems(items) {
+      return (items || []).map(item => `<li>${item}</li>`).join("");
+    }
+
+    function renderMacroDesignSection() {
+      const grid = document.getElementById("macroDesignGrid");
+      if (!grid) return;
+      grid.innerHTML = workflowData.macroDesign.map(item => {
+        const technologyBox = item.technology && item.technology.length ? `
+          <div class="soft-box">
+            <strong>Technology</strong>
+            <ul>${renderListItems(item.technology)}</ul>
+          </div>
+        ` : "";
+        const technologyTag = item.technology && item.technology.length ? `<span class="prompt-tag">Technology</span>` : "";
+        return `
+          <article class="macro-design-card">
+            <h3>${item.title}</h3>
+            <p>${item.way[0] || ""}</p>
+            ${technologyTag}
+            <span class="prompt-tag">Way / Approach</span>
+            <div class="split-list three">
+              ${technologyBox}
+              <div class="soft-box">
+                <strong>Way / Approach</strong>
+                <ul>${renderListItems(item.way)}</ul>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function renderSelectedStage() {
+      const stage = getSelectedStage();
+      const title = currentView === "offer" ? stage.offerTitle : stage.title;
+      const summary = currentView === "offer" ? stage.offerSummary : stage.summary;
+      document.getElementById("selectedTitle").textContent = title;
+      document.getElementById("selectedSubtitle").textContent = stage.module;
+      document.getElementById("stageSummary").innerHTML = `<p style="color:var(--muted); line-height:1.65; margin:0;">${summary}</p>`;
+      document.getElementById("microList").innerHTML = stage.micro.map(item => `
+        <article class="micro-card">
+          <div class="micro-head">
+            <h4>${item.title}</h4>
+            <span class="pill ${item.type}">${item.type.toUpperCase()}</span>
+          </div>
+          <p>${item.text}</p>
+        </article>
+      `).join("");
+    }
+
+    function renderDetailBox(stage) {
+      const detailBox = document.getElementById("detailBox");
+      if (!detailBox) return;
+      if (currentTab === "macro") {
+        const design = getMacroDesign(stage.id);
+        detailBox.innerHTML = `
+          <h3>Macro Prompt Data: Technology + Way</h3>
+          <p style="color:var(--muted); line-height:1.6; margin-top:0;">This data uses only your original scenario text, with grammar polished and the same meaning preserved.</p>
+          <div class="split-list three">
+            <div class="soft-box">
+              <strong>Technology</strong>
+              <ul>${renderListItems(design.technology)}</ul>
+            </div>
+            <div class="soft-box">
+              <strong>Way / Approach</strong>
+              <ul>${renderListItems(design.way)}</ul>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      const map = {
+        automation: { title: "Automation Rules", data: stage.automation },
+        gate: { title: "Blueprint / Control Gates", data: stage.gate },
+        output: { title: "Business Output", data: stage.output }
+      };
+      const selected = map[currentTab];
+      detailBox.innerHTML = `
+        <h3>${selected.title}</h3>
+        <ul>${selected.data.map(item => `<li>${item}</li>`).join("")}</ul>
+      `;
+    }
+
+    function renderProposalGrid() {
+      document.getElementById("proposalGrid").innerHTML = workflowData.proposalApproach.map(item => `
+        <article class="proposal-card">
+          <h3>${item.title}</h3>
+          <p>${item.text}</p>
+        </article>
+      `).join("");
+    }
+
+    function renderStageTable() {
+      const stageTable = document.getElementById("stageTable");
+      if (!stageTable) return;
+      stageTable.innerHTML = workflowData.stages.map(stage => {
+        const title = currentView === "offer" ? stage.offerTitle : stage.title;
+        return `
+          <tr>
+            <td><strong>${stage.no}</strong></td>
+            <td><strong>${title}</strong><br><span style="color:var(--muted);">${stage.module}</span></td>
+            <td>${stage.micro.map(m => `• ${m.title}`).join("<br>")}</td>
+            <td>${stage.module}</td>
+            <td>${stage.gate[0]}</td>
+            <td>${stage.output.join("<br>")}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function renderJson() {
+      const jsonData = document.getElementById("jsonData");
+      if (!jsonData) return;
+      jsonData.textContent = JSON.stringify(workflowData, null, 2);
+    }
+
+    window.selectStage = selectStage;
+    init();
+  </script>
+</body>
+</html>
