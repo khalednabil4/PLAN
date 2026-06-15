@@ -582,27 +582,13 @@
 
     <section class="panel" style="margin-top: 20px;">
       <div class="section-title" style="margin-top:0;">
-        <h2>Macro Stage User Data Only</h2>
-        <span class="view-note">Way + Technology</span>
+        <h2>Micro + Details</h2>
+        <span class="view-note">Micro / Details</span>
       </div>
       <p style="color: var(--muted); line-height: 1.6; margin-top: -4px;">
-        This section uses only your original data. Technology appears only where technical notes were provided in the same stage.
+        This section uses only the original micro stage data and details where notes were provided in the same stage.
       </p>
       <div class="macro-design-grid" id="macroDesignGrid"></div>
-    </section>
-
-    <section class="main-grid">
-      <div class="panel">
-        <div class="panel-header">
-          <div class="panel-title">
-            <h2 id="selectedTitle">Stage Details</h2>
-            <small id="selectedSubtitle">Select a stage from the map.</small>
-          </div>
-          <span class="pill output" id="stageType">Macro</span>
-        </div>
-        <div id="stageSummary"></div>
-        <div class="micro-list" id="microList"></div>
-      </div>
     </section>
 
     <section class="panel" style="margin-top: 20px;">
@@ -617,34 +603,15 @@
   <script>
     const workflowData = {
       stats: [
-        { label: "Macro Stages", value: "7" },
+        { label: "Macro Stages", value: "6" },
         { label: "Views", value: "Offer + Technical" },
         { label: "Main Control", value: "Blueprint Gates" },
         { label: "Core Output", value: "Proposal + Quote" }
       ],
       stages: [
         {
-          id: "open-deal",
-          no: 1,
-          title: "Open Deal",
-          offerTitle: "Open Deal",
-          summary: "Create a clean opportunity record and prepare it for qualification, requirement collection, and presales engagement.",
-          offerSummary: "Every opportunity starts from one controlled Deal record. This avoids scattered information and gives management one place to track progress.",
-          module: "Zoho CRM Deals",
-          color: "primary",
-          tags: ["Deal", "Owner", "Qualification"],
-          micro: [
-            { title: "Create Deal", type: "output", text: "Sales creates a Deal with client, business unit, opportunity source, expected value, and expected close date." },
-            { title: "Assign Sales Owner", type: "auto", text: "The Deal owner becomes accountable for requirement quality and next follow-up." },
-            { title: "Initial Qualification", type: "gate", text: "Deal cannot move forward without minimum qualification data." }
-          ],
-          automation: ["Auto-create internal checklist for new Deal.", "Notify sales manager when a high-value Deal is opened.", "Set initial SLA timer for requirements collection."],
-          gate: ["Mandatory client and opportunity data must be completed.", "Deal must have Sales Owner and next activity.", "No presales request allowed if Deal is incomplete."],
-          output: ["Qualified Deal record", "Initial pipeline visibility", "Clean starting point for presales"]
-        },
-        {
           id: "collect-requirements",
-          no: 2,
+          no: 1,
           title: "Collect Requirements",
           offerTitle: "Collect Requirements",
           summary: "Sales enters structured requirement data before requesting presales, proposal, or quote support.",
@@ -663,7 +630,7 @@
         },
         {
           id: "presales-engagement",
-          no: 3,
+          no: 2,
           title: "Presales Engagement",
           offerTitle: "Engage Presales Before Sales Process",
           summary: "Add a protected Deal stage before the normal sales process. Sales cannot continue until presales accepts and reviews the requirement.",
@@ -682,7 +649,7 @@
         },
         {
           id: "presales-control",
-          no: 4,
+          no: 3,
           title: "Presales Activity Control",
           offerTitle: "Control Presales Activities",
           summary: "Every presales stage creates Zoho Projects tasks. The Deal cannot move to the next stage until tasks are closed and time logs are entered.",
@@ -701,7 +668,7 @@
         },
         {
           id: "professional-services",
-          no: 5,
+          no: 4,
           title: "Professional Services Sheet",
           offerTitle: "Calculate Professional Services",
           summary: "Create a custom CRM module to calculate implementation, customization, integration, training, support, and PMO effort linked to the Deal.",
@@ -720,14 +687,14 @@
         },
         {
           id: "quote-inventory",
-          no: 6,
+          no: 5,
           title: "Create Quotes + Inventory Control",
           offerTitle: "Create Quote and Control Products",
           summary: "Generate quotes from CRM and handle inventory/product errors through a controlled update process.",
           offerSummary: "Quotes are generated from approved Deal, requirement, and service data. Product or inventory errors follow a controlled correction workflow.",
           module: "Zoho CRM Quotes + Products + Inventory Error Process",
           color: "warning",
-          tags: ["Quote", "Inventory", "Product Fix"],
+          tags: ["Quote", "Product Fix"],
           micro: [
             { title: "Create Quote", type: "output", text: "Quote is created from Deal data, approved service sheet, selected products, taxes, and commercial terms." },
             { title: "Inventory Error Check", type: "auto", text: "If product, SKU, tax, stock, or price is wrong, create an inventory correction request." },
@@ -739,7 +706,7 @@
         },
         {
           id: "pmo-control",
-          no: 7,
+          no: 6,
           title: "PMO Request Control",
           offerTitle: "PMO Request and Journey Control",
           summary: "Create a custom PMO module to control delivery requests, email logging, activity tracking, and journey stages connected to the Deal.",
@@ -759,14 +726,6 @@
       ],
 
       macroDesign: [
-        {
-          stageId: "open-deal",
-          title: "Open Deal",
-          way: [
-            "Open the Deal."
-          ],
-          technology: []
-        },
         {
           stageId: "collect-requirements",
           title: "Collect Requirements",
@@ -946,21 +905,21 @@
       grid.innerHTML = workflowData.macroDesign.map(item => {
         const technologyBox = item.technology && item.technology.length ? `
           <div class="soft-box">
-            <strong>Technology</strong>
+            <strong>Details</strong>
             <ul>${renderListItems(item.technology)}</ul>
           </div>
         ` : "";
-        const technologyTag = item.technology && item.technology.length ? `<span class="prompt-tag">Technology</span>` : "";
+        const technologyTag = item.technology && item.technology.length ? `<span class="prompt-tag">Details</span>` : "";
         return `
           <article class="macro-design-card">
             <h3>${item.title}</h3>
             <p>${item.way[0] || ""}</p>
             ${technologyTag}
-            <span class="prompt-tag">Way / Approach</span>
+            <span class="prompt-tag">Micro</span>
             <div class="split-list three">
               ${technologyBox}
               <div class="soft-box">
-                <strong>Way / Approach</strong>
+                <strong>Micro</strong>
                 <ul>${renderListItems(item.way)}</ul>
               </div>
             </div>
@@ -971,9 +930,11 @@
 
     function renderSelectedStage() {
       const stage = getSelectedStage();
+      const selectedTitle = document.getElementById("selectedTitle");
+      if (!selectedTitle) return;
       const title = currentView === "offer" ? stage.offerTitle : stage.title;
       const summary = currentView === "offer" ? stage.offerSummary : stage.summary;
-      document.getElementById("selectedTitle").textContent = title;
+      selectedTitle.textContent = title;
       document.getElementById("selectedSubtitle").textContent = stage.module;
       document.getElementById("stageSummary").innerHTML = `<p style="color:var(--muted); line-height:1.65; margin:0;">${summary}</p>`;
       document.getElementById("microList").innerHTML = stage.micro.map(item => `
@@ -993,15 +954,15 @@
       if (currentTab === "macro") {
         const design = getMacroDesign(stage.id);
         detailBox.innerHTML = `
-          <h3>Macro Prompt Data: Technology + Way</h3>
+          <h3>Macro Prompt Data: Micro + Details</h3>
           <p style="color:var(--muted); line-height:1.6; margin-top:0;">This data uses only your original scenario text, with grammar polished and the same meaning preserved.</p>
           <div class="split-list three">
             <div class="soft-box">
-              <strong>Technology</strong>
+              <strong>Details</strong>
               <ul>${renderListItems(design.technology)}</ul>
             </div>
             <div class="soft-box">
-              <strong>Way / Approach</strong>
+              <strong>Micro</strong>
               <ul>${renderListItems(design.way)}</ul>
             </div>
           </div>

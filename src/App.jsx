@@ -17,60 +17,15 @@ const detailTabs = [
 
 const workflowData = {
   stats: [
-    { label: 'Macro Stages', value: '7' },
+    { label: 'Macro Stages', value: '6' },
     { label: 'Views', value: 'Offer + Technical' },
     { label: 'Main Control', value: 'Blueprint Gates' },
     { label: 'Core Output', value: 'Proposal + Quote' },
   ],
   stages: [
     {
-      id: 'open-deal',
-      no: 1,
-      title: 'Open Deal',
-      offerTitle: 'Open Deal',
-      summary:
-        'Create a clean opportunity record and prepare it for qualification, requirement collection, and presales engagement.',
-      offerSummary:
-        'Every opportunity starts from one controlled Deal record. This avoids scattered information and gives management one place to track progress.',
-      module: 'Zoho CRM Deals',
-      color: 'primary',
-      tags: ['Deal', 'Owner', 'Qualification'],
-      micro: [
-        {
-          title: 'Create Deal',
-          type: 'output',
-          text: 'Sales creates a Deal with client, business unit, opportunity source, expected value, and expected close date.',
-        },
-        {
-          title: 'Assign Sales Owner',
-          type: 'auto',
-          text: 'The Deal owner becomes accountable for requirement quality and next follow-up.',
-        },
-        {
-          title: 'Initial Qualification',
-          type: 'gate',
-          text: 'Deal cannot move forward without minimum qualification data.',
-        },
-      ],
-      automation: [
-        'Auto-create internal checklist for new Deal.',
-        'Notify sales manager when a high-value Deal is opened.',
-        'Set initial SLA timer for requirements collection.',
-      ],
-      gate: [
-        'Mandatory client and opportunity data must be completed.',
-        'Deal must have Sales Owner and next activity.',
-        'No presales request allowed if Deal is incomplete.',
-      ],
-      output: [
-        'Qualified Deal record',
-        'Initial pipeline visibility',
-        'Clean starting point for presales',
-      ],
-    },
-    {
       id: 'collect-requirements',
-      no: 2,
+      no: 1,
       title: 'Collect Requirements',
       offerTitle: 'Collect Requirements',
       summary:
@@ -115,7 +70,7 @@ const workflowData = {
     },
     {
       id: 'presales-engagement',
-      no: 3,
+      no: 2,
       title: 'Presales Engagement',
       offerTitle: 'Engage Presales Before Sales Process',
       summary:
@@ -161,7 +116,7 @@ const workflowData = {
     },
     {
       id: 'presales-control',
-      no: 4,
+      no: 3,
       title: 'Presales Activity Control',
       offerTitle: 'Control Presales Activities',
       summary:
@@ -209,7 +164,7 @@ const workflowData = {
     },
     {
       id: 'professional-services',
-      no: 5,
+      no: 4,
       title: 'Professional Services Sheet',
       offerTitle: 'Calculate Professional Services',
       summary:
@@ -255,7 +210,7 @@ const workflowData = {
     },
     {
       id: 'quote-inventory',
-      no: 6,
+      no: 5,
       title: 'Create Quotes + Inventory Control',
       offerTitle: 'Create Quote and Control Products',
       summary:
@@ -264,7 +219,7 @@ const workflowData = {
         'Quotes are generated from approved Deal, requirement, and service data. Product or inventory errors follow a controlled correction workflow.',
       module: 'Zoho CRM Quotes + Products + Inventory Error Process',
       color: 'warning',
-      tags: ['Quote', 'Inventory', 'Product Fix'],
+      tags: ['Quote', 'Product Fix'],
       micro: [
         {
           title: 'Create Quote',
@@ -301,7 +256,7 @@ const workflowData = {
     },
     {
       id: 'pmo-control',
-      no: 7,
+      no: 6,
       title: 'PMO Request Control',
       offerTitle: 'PMO Request and Journey Control',
       summary:
@@ -347,12 +302,6 @@ const workflowData = {
     },
   ],
   macroDesign: [
-    {
-      stageId: 'open-deal',
-      title: 'Open Deal',
-      way: ['Open the Deal.'],
-      technology: [],
-    },
     {
       stageId: 'collect-requirements',
       title: 'Collect Requirements',
@@ -578,8 +527,6 @@ function MacroMicroView() {
   const [selectedTab, setSelectedTab] = useState('macro')
   const selectedStage =
     workflowData.stages.find((stage) => stage.id === selectedStageId) ?? workflowData.stages[0]
-  const selectedTitle = viewMode === 'offer' ? selectedStage.offerTitle : selectedStage.title
-  const selectedSummary = viewMode === 'offer' ? selectedStage.offerSummary : selectedStage.summary
 
   return (
     <main className="workflow-page">
@@ -660,39 +607,8 @@ function MacroMicroView() {
         </div>
       </section>
 
-      <section className="workflow-main-grid">
+      <section className="workflow-main-grid workflow-main-grid-single">
         <article className="workflow-panel">
-          <div className="panel-header">
-            <div className="panel-title">
-              <p className="eyebrow">Selected Stage</p>
-              <h2>{selectedTitle}</h2>
-              <small>{selectedStage.module}</small>
-            </div>
-            <span className="pill output">Macro</span>
-          </div>
-          <p className="stage-summary">{selectedSummary}</p>
-
-          <div className="micro-list">
-            {selectedStage.micro.map((item) => (
-              <article className="micro-card" key={item.title}>
-                <div className="micro-head">
-                  <h3>{item.title}</h3>
-                  <span className={`pill ${item.type}`}>{item.type.toUpperCase()}</span>
-                </div>
-                <p>{item.text}</p>
-              </article>
-            ))}
-          </div>
-        </article>
-
-        <article className="workflow-panel">
-          <div className="panel-header">
-            <div className="panel-title">
-              <p className="eyebrow">Stage Control</p>
-              <h2>Implementation Details</h2>
-            </div>
-          </div>
-
           <div className="detail-tabs" aria-label="Stage detail tabs">
             {detailTabs.map((tab) => (
               <button
@@ -713,10 +629,10 @@ function MacroMicroView() {
       <section className="workflow-panel workflow-panel-wide">
         <div className="workflow-section-heading compact">
           <div>
-            <p className="eyebrow">Macro Stage Data</p>
-            <h2>User Data Only</h2>
+            <p className="eyebrow">Micro Stage Data</p>
+            <h2>Micro + Details</h2>
           </div>
-          <span className="workflow-note">Way + Technology</span>
+          <span className="workflow-note">Micro / Details</span>
         </div>
 
         <div className="macro-design-grid">
@@ -728,8 +644,8 @@ function MacroMicroView() {
               key={item.stageId}
             >
               <h3>{item.title}</h3>
-              <InfoGroup title="Way / Approach" items={item.way} />
-              {item.technology.length ? <InfoGroup title="Technology" items={item.technology} /> : null}
+              <InfoGroup title="Micro" items={item.way} />
+              {item.technology.length ? <InfoGroup title="Details" items={item.technology} /> : null}
             </article>
           ))}
         </div>
@@ -762,9 +678,9 @@ function DetailPanel({ stage, selectedTab }) {
   if (selectedTab === 'macro') {
     return (
       <div className="detail-box">
-        {macroDesign ? <InfoGroup title="Way / Approach" items={macroDesign.way} /> : null}
+        {macroDesign ? <InfoGroup title="Micro" items={macroDesign.way} /> : null}
         {macroDesign?.technology.length ? (
-          <InfoGroup title="Technology" items={macroDesign.technology} />
+          <InfoGroup title="Details" items={macroDesign.technology} />
         ) : null}
       </div>
     )

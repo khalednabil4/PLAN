@@ -669,6 +669,10 @@
   margin-top: 1.25rem;
 }
 
+.workflow-main-grid-single {
+  grid-template-columns: 1fr;
+}
+
 .workflow-panel {
   border-radius: 1.5rem;
   padding: 1.35rem;
